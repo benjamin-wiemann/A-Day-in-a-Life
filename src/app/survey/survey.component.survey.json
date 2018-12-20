@@ -1,0 +1,402 @@
+{
+    "pages": [
+        {
+            "name": "page1",
+            "elements": [
+                {
+                    "type": "checkbox",
+                    "name": "sleeping_times",
+                    "title": "When have been your sleeping times today?",
+                    "isRequired": true,
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "0:00 am"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "1:00 am"
+                        },
+                        {
+                            "value": "item3",
+                            "text": "2:00 am"
+                        },
+                        {
+                            "value": "item4",
+                            "text": "3:00 am"
+                        },
+                        {
+                            "value": "item5",
+                            "text": "4:00 am"
+                        },
+                        {
+                            "value": "item6",
+                            "text": "5:00 am"
+                        },
+                        "item7",
+                        "item8",
+                        "item9",
+                        "item10",
+                        "item11",
+                        "item12",
+                        "item13",
+                        "item14",
+                        "item15",
+                        "item16",
+                        "item17",
+                        "item18",
+                        "item19",
+                        "item20",
+                        "item21",
+                        "item22",
+                        "item23"
+                    ]
+                },
+                {
+                    "type": "rating",
+                    "name": "question2",
+                    "title": "On how many different Locations your day took place?",
+                    "rateMax": 10
+                },
+                {
+                    "type": "dropdown",
+                    "name": "question3",
+                    "title": "On how many different Locations your day took place?",
+                    "validators": [
+                        {
+                            "type": "numeric",
+                            "text": "Select a value between 1 and 10",
+                            "minValue": 1,
+                            "maxValue": 10
+                        }
+                    ],
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "1"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "2"
+                        },
+                        {
+                            "value": "item3",
+                            "text": "3"
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "name": "locations",
+                    "title": "On how many different Locations your day took place (max. 10) ?",
+                    "isRequired": true,
+                    "validators": [
+                        {
+                            "type": "numeric",
+                            "text": "Select a value between 1 and 10",
+                            "minValue": 1,
+                            "maxValue": 10
+                        }
+                    ],
+                    "inputType": "number",
+                    "size": 2,
+                    "maxLength": 2,
+                    "placeHolder": "1"
+                },
+                {
+                    "type": "rating",
+                    "name": "Have you been mainly in- or outdoors?",
+                    "isRequired": true,
+                    "rateValues": [
+                        {
+                            "value": "0",
+                            "text": "0%"
+                        },
+                        {
+                            "value": "1",
+                            "text": "10%"
+                        },
+                        {
+                            "value": "2",
+                            "text": "20%"
+                        },
+                        {
+                            "value": "3",
+                            "text": "30%"
+                        },
+                        {
+                            "value": "4",
+                            "text": "40%"
+                        },
+                        {
+                            "value": "5",
+                            "text": "50%"
+                        },
+                        {
+                            "value": "6",
+                            "text": "60%"
+                        },
+                        {
+                            "value": "7",
+                            "text": "70%"
+                        },
+                        {
+                            "value": "8",
+                            "text": "80%"
+                        },
+                        {
+                            "value": "9",
+                            "text": "90%"
+                        },
+                        {
+                            "value": "10",
+                            "text": "100%"
+                        }
+                    ],
+                    "rateMax": 10,
+                    "minRateDescription": "Only indoors ",
+                    "maxRateDescription": "Only outdoors"
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question4",
+                    "title": "What is your mood if you think about your day?",
+                    "isRequired": true,
+                    "choices": [
+                        "item1",
+                        "item2",
+                        "item3"
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question5",
+                    "title": "How did you experience your day?",
+                    "isRequired": true,
+                    "choices": [
+                        "item1",
+                        "item2",
+                        "item3"
+                    ]
+                },
+                {
+                    "type": "rating",
+                    "name": "question6",
+                    "title": "How would you rate your day?",
+                    "isRequired": true,
+                    "rateMax": 10,
+                    "minRateDescription": "Really bad",
+                    "maxRateDescription": "Really good"
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question1",
+                    "title": "Are you satisfied with your day?",
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "0",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "rating",
+                    "name": "question8",
+                    "title": "How busy was your day?",
+                    "rateMax": 10,
+                    "minRateDescription": "Not busy at all",
+                    "maxRateDescription": "Really busy"
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question7",
+                    "title": "Did you eat enough throughout the day?",
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "0",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question9",
+                    "title": "Did you drink enough throughout the day?",
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "0",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question10",
+                    "title": "Did your day go as planned?",
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "0",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question11",
+                    "title": "Have you been sick today?",
+                    "choices": [
+                        {
+                            "value": "1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "0",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "rating",
+                    "name": "question12",
+                    "title": "Have you been on the move a lot?",
+                    "isRequired": true,
+                    "rateMax": 10,
+                    "minRateDescription": "Not at all",
+                    "maxRateDescription": "Always"
+                },
+                {
+                    "type": "checkbox",
+                    "name": "question14",
+                    "title": "What was your main means of transport?",
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "Car"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "Bus"
+                        },
+                        {
+                            "value": "item3",
+                            "text": "Train/Metro"
+                        },
+                        {
+                            "value": "item4",
+                            "text": "Bike"
+                        },
+                        {
+                            "value": "item5",
+                            "text": "Skateboard"
+                        }
+                    ]
+                },
+                {
+                    "type": "checkbox",
+                    "name": "question13",
+                    "title": "What weather conditions have mainly been today?",
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "Sunny"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "Cloudy"
+                        },
+                        {
+                            "value": "item3",
+                            "text": "Rain"
+                        },
+                        {
+                            "value": "item4",
+                            "text": "Snow"
+                        }
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question15",
+                    "title": "Did you have enough sleep last night?",
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "Yes"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "No"
+                        }
+                    ]
+                },
+                {
+                    "type": "checkbox",
+                    "name": "question16",
+                    "title": "What sports did you do today?",
+                    "choices": [
+                        {
+                            "value": "item1",
+                            "text": "Football"
+                        },
+                        {
+                            "value": "item2",
+                            "text": "Tennis"
+                        },
+                        {
+                            "value": "item3",
+                            "text": "Gym"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "page2"
+        },
+        {
+            "name": "page3"
+        },
+        {
+            "name": "page4"
+        },
+        {
+            "name": "page5"
+        },
+        {
+            "name": "page6"
+        },
+        {
+            "name": "page7"
+        },
+        {
+            "name": "page8"
+        },
+        {
+            "name": "page9"
+        },
+        {
+            "name": "page10"
+        },
+        {
+            "name": "page11"
+        }
+    ],
+    "goNextPageAutomatic": true,
+    "firstPageIsStarted": true
+}
