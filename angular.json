@@ -41,7 +41,7 @@
               "./node_modules/jquery-bar-rating/dist/themes/bars-reversed.css",
               "./node_modules/jquery-bar-rating/dist/themes/bars-square.css",
               "./node_modules/jquery-bar-rating/dist/themes/bootstrap-stars.css",
-              "./node_modules/jquery-bar-rating/dist/themes/fontawesome-stars-o.css"
+              "./node_modules/jquery-bar-rating/dist/themes/fontawesome-stars-o.css"             
             ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.js",
