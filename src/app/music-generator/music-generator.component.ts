@@ -31,7 +31,7 @@ export class MusicGeneratorComponent implements OnInit {
     // play the loop between 0-2m on the transport
     loop.start(0).stop('2m');
     Tone.Transport.start('+0.1');
-    alert( JSON.stringify( this.survey.data ));
+    //alert( JSON.stringify( this.survey.data ));
   }
 
   onStop(): void {
