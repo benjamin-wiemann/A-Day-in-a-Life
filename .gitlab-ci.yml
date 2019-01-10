@@ -9,10 +9,10 @@ pages:
   script:
   - npm install -g @angular/cli@7.1.1
   - npm install
-  - ng build
-  - mv dist/fossilizer/* public/
+  - ng build --prod --output-path public --base-href a-day-in-a-life
   artifacts:
     paths:
     - public
   only:
+  - master
   - deploy
