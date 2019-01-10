@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { SurveyMessengerService } from './survey-messenger.service';
+import { Survey } from 'survey-angular';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,22 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'A day in a life';
+
+  title: string = 'A day in a life';
+  surveyCompleted: boolean = false;
+  survey: Survey;
+
+  constructor( private messengerService: SurveyMessengerService ) {
+
+  }
+
+  ngOnInit(){
+    this.messengerService.subscribe(
+        ( surveyModel: Survey ) => {
+          this.surveyCompleted = true;
+          this.survey = surveyModel;
+        }
+    );
+  }
+
 }
