@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SurveyMessengerService } from '../survey-messenger.service';
 import * as Survey from 'survey-angular';
-import { surveyJSON } from './survey-data-test';
+import { surveyJSON } from './survey-data';
 
 
 Survey.Survey.cssType = 'bootstrap';

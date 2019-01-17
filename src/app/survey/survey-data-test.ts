@@ -5,24 +5,25 @@ export const surveyJSON =
         "name": "page6",
         "elements": [
             {
-            "type": "radiogroup",
-            "name": "question4",
-            "title": "What is your mood if you think about your day?",
-            "isRequired": true,
-            "choices": [
-            {
-            "value": "item1",
-            "text": "Happy"
-            },
-            {
-            "value": "item2",
-            "text": "Sad"
-            },
-            {
-            "value": "item3",
-            "text": "Angry"
-            }
-            ]
+                "type": "radiogroup",
+                "name": "question4",
+                "title": "What is your mood if you think about your day?",
+                "isRequired": true,
+                "choices": [
+                {
+                "value": "item1",
+                "text": "Happy"
+                },
+                {
+                "value": "item2",
+                "text": "Sad"
+                },
+                {
+                "value": "item3",
+                "text": "Angry"
+                }
+                ],
+                "mapping": null
             }
         ]
     },
@@ -34,9 +35,10 @@ export const surveyJSON =
           "name": "question8",
           "title": "How busy was your day?",
           "isRequired": true,
-          "rateMax": 10,
+          "rateMax": 5,
           "minRateDescription": "Not busy at all",
-          "maxRateDescription": "Really busy"
+          "maxRateDescription": "Really busy",
+          "mapping": "bpm"
          }
         ]
        },
@@ -48,7 +50,7 @@ export const surveyJSON =
         "name": "question12",
         "title": "Have you been on the move a lot?",
         "isRequired": true,
-        "rateMax": 10,
+        "rateMax": 5,
         "minRateDescription": "Not at all",
         "maxRateDescription": "Always"
         }

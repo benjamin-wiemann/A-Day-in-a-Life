@@ -1,8 +1,9 @@
 <div class='row'>Your day has been converted to a piece of music. Click on the Play button to listen!</div>
 
 <div class='row'>
-    <div class='col-sm-6'><button mat-button (click)="onPlay()" >Play</button></div>
-    <div class='col-sm-6'><button (click)="onStop()" >Stop</button></div>    
+    <div class='col-sm-4'><button [disabled]="!play_enabled" (click)="onPlay()" >Play</button></div>
+    <div class='col-sm-4'><button [disabled]="!pause_enabled" (click)="onPause()" >Pause</button></div>
+    <div class='col-sm-4'><button [disabled]="!stop_enabled" (click)="onStop()" >Stop</button></div>    
 </div>
 
 <div class='row'><p>Use this URL to share this piece of music!</p>
