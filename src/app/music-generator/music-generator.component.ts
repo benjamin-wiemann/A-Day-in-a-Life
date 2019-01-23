@@ -4,113 +4,115 @@ import * as Survey from 'survey-angular';
 import * as Tone from 'tone';
 
 import { SurveyMessengerService } from '../survey-messenger.service';
+import * as Slot from './Slot';
+import * as Global from '../global';
 
 @Component({
-  selector: 'day-music-generator',
-  templateUrl: './music-generator.component.html',
-  styleUrls: ['./music-generator.component.css']
+    selector: 'day-music-generator',
+    templateUrl: './music-generator.component.html',
+    styleUrls: ['./music-generator.component.css']
 })
 export class MusicGeneratorComponent implements OnInit {
 
-  url: string;
-  @Input() survey: Survey.Survey;
-  @Input() play_enabled = false;
-  @Input() stop_enabled = false;
-  @Input() pause_enabled = false;
+    url: string;
+    @Input() survey: Survey.Survey;
+    @Input() play_enabled = false;
+    @Input() stop_enabled = false;
+    @Input() pause_enabled = false;
 
-  // instruments
-  atmo: Tone.Player;
-  drum1: Tone.Sampler;
-  drum2: Tone.Sampler;
+    // instruments
+    atmo: Tone.Player;
+    sample1: Tone.Sampler;
+    sample2: Tone.Sampler;
+    sample3: Tone.Sampler;
 
-  constructor( ) { }
+    // Slot sequence
+    slots = Array<Slot.TimeSlot>();
+    numBuffers = 0;
+    numBuffersLoaded = 0;
 
-  enablePlayButton() {
-    if ( this.atmo.loaded &&
-          this.drum1.loaded &&
-          this.drum2.loaded ) {
-          this.play_enabled = true;
+    constructor() { }
+
+    enablePlayButton() {
+        this.numBuffersLoaded++;
+        console.log( ` ${ this.numBuffersLoaded } of ${ this.numBuffers } loaded ` );
+        if (this.numBuffers === this.numBuffersLoaded) {
+            this.play_enabled = true;
+        }
     }
-  }
 
-  ngOnInit() {
-    this.url = 'https://test.url.com';
+    ngOnInit() {
+        this.url = 'https://test.url.com';
 
-    Tone.Transport.bpm.value = 80;
+        Tone.Transport.bpm.value = 80;
 
-    // create instruments and map notes to sounds
-    this.atmo = new Tone.Player( './assets/audio/bathroom/bathroom_atmo.mp3',
-    this.enablePlayButton.bind(this));
-    this.atmo.fadeIn = '1m';
-    this.atmo.fadeOut = '1m';
-    const atmoPan  = new Tone.PanVol( 0, 12 );
-    this.atmo.chain( atmoPan, Tone.Master);
+        const isCity = true;
 
-    this.drum1 = new Tone.Sampler({
-      'C1' : 'brushing_teeth_1.mp3',
-      'C#1' : 'brushing_teeth_2.mp3',
-      'D1' : 'brushing_teeth_3.mp3',
-      'D#1' : 'brushing_teeth_4.mp3',
-      'E1' : 'brushing_teeth_5.mp3',
-      'F1' : 'brushing_teeth_6.mp3'
-    },
-    this.enablePlayButton.bind(this),
-    './assets/audio/bathroom/samples/brushing/').toMaster();
-    const drum1Pan  = new Tone.PanVol( -0.5, -24 );
-    this.drum1.chain( drum1Pan, Tone.Master);
+        // add slots according to playback order
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.Bed, isCity, this.enablePlayButton.bind(this)));
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.Bathroom, isCity, this.enablePlayButton.bind(this)));
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.HomeMo, isCity, this.enablePlayButton.bind(this)));
+        if (Global.isTestMode) {
+            this.addSlot(new Slot.TransitionSlot(Slot.Transport.Skateboard, isCity, this.enablePlayButton.bind(this)));
+            this.addSlot(new Slot.LocationSlot(Slot.Loc.Work, isCity, this.enablePlayButton.bind(this)));
+            this.addSlot(new Slot.TransitionSlot(Slot.Transport.Skateboard, isCity, this.enablePlayButton.bind(this)));
+        }
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.HomeEv, isCity, this.enablePlayButton.bind(this), 'Cooking'));
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.Bathroom, isCity, this.enablePlayButton.bind(this)));
+        this.addSlot(new Slot.LocationSlot(Slot.Loc.Bed, isCity, this.enablePlayButton.bind(this)));
 
-    this.drum2 = new Tone.Sampler({
-      'C1' : 'toothbrush_in_cup_1.mp3',
-      'C#1' : 'toothbrush_in_cup_2.mp3',
-      'D1' : 'toothbrush_in_cup_3.mp3'
-    },
-    this.enablePlayButton.bind(this),
-    './assets/audio/bathroom/samples/toothbrush_in_cup/');
-    // const drum2Mono = new Tone.Mono();
-    const drum2Pan  = new Tone.PanVol( 0.5, 0 );
-    this.drum2.chain( drum2Pan, Tone.Master);
-  }
+    }
 
-  onPlay(): void {
-    this.play_enabled   = false;
-    this.pause_enabled  = true;
-    this.stop_enabled   = true;
+    addSlot(slot: Slot.TimeSlot) {
+        this.slots.push(slot);
+        if (slot instanceof Slot.TransitionSlot) {
+            this.numBuffers++;
+        } else {
+            this.numBuffers = this.numBuffers + slot.getNumInstrumentsToLoad();
+        }
+    }
 
-    const atmoEvent = new Tone.Event(
-      (( time: Tone.Encoding.Time ) => {
-        this.atmo.start(time, 0, '8m');
-      }).bind(this), null );
-    atmoEvent.start(0);
+    onPlay(): void {
+        this.play_enabled = false;
+        this.pause_enabled = true;
+        this.stop_enabled = true;
 
-    const drums1 = new Tone.Sequence(((time: Tone.Encoding.Time, note) => {
-      this.drum1.triggerAttackRelease(note, '16n', time);
-    }).bind(this), ['C1', 'C#1', 'D1', 'D#1', 'C1', 'C#1', 'E1', 'F1'], '16n');
-    drums1.probability = 0.8;
-    drums1.start(0).stop('8m');
+        // put slots in queue and start playing
+        let bars = 0;
+        const transDuration = 2;
+        const locDuration = 4;
+        const crossFadeTime = 1;
+        this.slots.forEach(
+            (slot) => {
+                if (slot instanceof Slot.LocationSlot) {
+                    slot.play( bars, locDuration, crossFadeTime);
+                    bars += locDuration - crossFadeTime;
+                } else {
+                    slot.play( bars, transDuration, crossFadeTime);
+                    bars += transDuration - crossFadeTime;
+                }
+            }
+        );
 
-    const loop = new Tone.Loop(function (time: Tone.Encoding.Time ) {
-      this.drum2.triggerAttackRelease('C1', '8n', time);
-    }.bind(this), '4n');
-    loop.probability = 0.3;
-    loop.start(0).stop('8m');
+        Tone.Transport.start('+0.1');
 
-    Tone.Transport.start('+0.1');
+    }
 
-  }
+    onPause(): void {
+        Tone.Transport.pause('+0.1');
+        this.play_enabled = true;
+        this.pause_enabled = false;
+    }
 
-  onPause(): void {
-    Tone.Transport.pause('+0.1');
-    this.atmo.stop();
-    this.play_enabled = true;
-    this.pause_enabled = false;
-  }
+    onStop(): void {
+        Tone.Transport.stop();
+        this.slots.forEach(
+            (slot) => { slot.stop() }
+        );
+        this.play_enabled = true;
+        this.stop_enabled = false;
+        this.pause_enabled = false;
 
-  onStop(): void {
-    Tone.Transport.stop();
-    this.atmo.stop();
-    this.play_enabled = true;
-    this.stop_enabled = false;
-    this.pause_enabled = false;
-  }
+    }
 
 }
