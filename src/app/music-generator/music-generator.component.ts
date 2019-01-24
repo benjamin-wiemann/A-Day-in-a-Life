@@ -35,7 +35,7 @@ export class MusicGeneratorComponent implements OnInit {
 
     enablePlayButton() {
         this.numBuffersLoaded++;
-        console.log( ` ${ this.numBuffersLoaded } of ${ this.numBuffers } loaded ` );
+        console.log(` ${this.numBuffersLoaded} of ${this.numBuffers} loaded `);
         if (this.numBuffers === this.numBuffersLoaded) {
             this.play_enabled = true;
         }
@@ -79,23 +79,35 @@ export class MusicGeneratorComponent implements OnInit {
 
         // put slots in queue and start playing
         let bars = 0;
-        const transDuration = 2;
+        const transDuration = 3;
         const locDuration = 4;
         const crossFadeTime = 1;
         this.slots.forEach(
             (slot) => {
                 if (slot instanceof Slot.LocationSlot) {
-                    slot.play( bars, locDuration, crossFadeTime);
+                    slot.play(bars, locDuration, crossFadeTime);
                     bars += locDuration - crossFadeTime;
                 } else {
-                    slot.play( bars, transDuration, crossFadeTime);
+                    slot.play(bars, transDuration, crossFadeTime);
                     bars += transDuration - crossFadeTime;
                 }
             }
         );
 
+        let stopEvent = new Tone.Event((() => this.stop( '+0.1' )).bind(this), null);
+        stopEvent.start(`${bars + crossFadeTime}m`);
         Tone.Transport.start('+0.1');
 
+    }
+
+    stop(time: Tone.Encoding.Time) {
+        Tone.Transport.stop(time);
+        this.slots.forEach(
+            (slot) => { slot.stop(time); }
+        );
+        this.play_enabled = true;
+        this.stop_enabled = false;
+        this.pause_enabled = false;
     }
 
     onPause(): void {
@@ -105,14 +117,7 @@ export class MusicGeneratorComponent implements OnInit {
     }
 
     onStop(): void {
-        Tone.Transport.stop();
-        this.slots.forEach(
-            (slot) => { slot.stop() }
-        );
-        this.play_enabled = true;
-        this.stop_enabled = false;
-        this.pause_enabled = false;
-
+        this.stop('+0.1');
     }
 
 }

@@ -69,14 +69,15 @@ export abstract class TimeSlot {
         }
         this.atmo.fadeIn = `${crossFade}m`;
         this.atmo.fadeOut = `${crossFade}m`;
-        let startString = `${start}m`;
-        let durString = `${duration}m`;
-        this.atmo.start( startString, 0, durString);
+        const startString = `${start}m`;
+        const durString = `${duration}m`;
+        const offset = Math.floor(Math.random() * 30);
+        this.atmo.sync().start( startString, offset, durString);
         console.log( 'Atmo starting at ' + startString + ' with duration ' + durString);
     }
 
-    stop() {
-        this.atmo.stop();
+    stop( time: Tone.Encoding.Time ) {
+        this.atmo.stop('+0.1');
     }
 
     public getNumInstrumentsToLoad(): number {
@@ -157,20 +158,18 @@ export class LocationSlot extends TimeSlot {
         super.play(startBar, duration, crossFadeTime);
 
         // time value initialization
-        const start = `${startBar + crossFadeTime}m`;
-        const stop = `${startBar + duration - crossFadeTime}m`;
-
-        let sequence: string[];
+        const start = `${startBar + crossFadeTime }m`;
+        const stop = `${startBar + duration - crossFadeTime }m`;
 
         // generate slow sample sequence
         if (this.samplerSlow != null) {
             const numNotesSlow = 4;
             const noteGenProbabilitySlow = 1;
 
-            sequence = this.generateSequence(Category.Slow, numNotesSlow, noteGenProbabilitySlow);
+            const sequence = this.generateSequence(Category.Slow, numNotesSlow, noteGenProbabilitySlow);
             const slowLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Note) => {
-                    this.samplerSlow.triggerAttackRelease(note, '16n', time);
+                    this.samplerSlow.triggerAttackRelease(note, '8n', time);
                 }).bind(this),
                 sequence,
                 `${numNotesSlow}n`);
@@ -185,10 +184,10 @@ export class LocationSlot extends TimeSlot {
             const numNotesMid = 8;
             const noteGenProbabilityMid = 1;
 
-            sequence = this.generateSequence(Category.Mid, numNotesMid, noteGenProbabilityMid)
+            const sequence = this.generateSequence(Category.Mid, numNotesMid, noteGenProbabilityMid);
             const midLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Note) => {
-                    this.samplerMid.triggerAttackRelease(note, '16n', time);
+                    this.samplerMid.triggerAttackRelease(note, '8n', time);
                 }).bind(this),
                 sequence,
                 `${numNotesMid}n`);
@@ -203,10 +202,10 @@ export class LocationSlot extends TimeSlot {
             const numNotesFast = 16;
             const noteGenProbabilityFast = 1;
 
-            sequence = this.generateSequence(Category.Fast, numNotesFast, noteGenProbabilityFast);
+            const sequence = this.generateSequence(Category.Fast, numNotesFast, noteGenProbabilityFast);
             const fastLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note) => {
-                    this.samplerFast.triggerAttackRelease(note, '16n', time);
+                    this.samplerFast.triggerAttackRelease(note, '8n', time);
                 }).bind(this),
                 sequence,
                 `${numNotesFast}n`);
