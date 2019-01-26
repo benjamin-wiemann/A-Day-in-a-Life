@@ -6,17 +6,17 @@ export const surveyJSON =
       elements: [
        {
         type: "radiogroup",
-        name: "question1",
+        name: "living_place",
         title: "Where do you live?",
         isRequired: true,
         choices: [
          {
-          value: "item1",
+          value: "city",
           text: "City"
          },
          {
-          value: "item2",
-          text: "Village"
+          value: "country",
+          text: "Village / Countryside"
          }
         ]
        }
@@ -27,7 +27,7 @@ export const surveyJSON =
       elements: [
        {
         type: "matrixdynamic",
-        name: "question2",
+        name: "spot",
         title: "On which of these spots did your day take place?",
         isRequired: true,
         columns: [
@@ -36,31 +36,31 @@ export const surveyJSON =
          }
         ],
         choices: [
-         {
-          value: 1,
-          text: "Home"
-         },
-         {
-          value: 2,
-          text: "Work"
-         },
-         {
-          value: 3,
-          text: "Outdoors"
-         },
-         {
-          value: 4,
-          text: "Supermarket"
-         },
-         {
-          value: 5,
-          text: "Shopping Mall"
-         },
-         {
-          value: "6",
-          text: "Restaurant / Diner"
-         }
-        ],
+            {
+             value: "home",
+             text: "Home"
+            },
+            {
+             value: "work",
+             text: "Work"
+            },
+            {
+             value: "outdoors",
+             text: "Outdoors"
+            },
+            {
+             value: "supermarket",
+             text: "Supermarket"
+            },
+            {
+             value: "mall",
+             text: "Shopping Mall"
+            },
+            {
+             value: "diner",
+             text: "Restaurant / Diner"
+            }
+           ],
         rowCount: 1
        }
       ]
@@ -69,33 +69,33 @@ export const surveyJSON =
       name: "page3",
       elements: [
        {
-        type: "checkbox",
-        name: "question3",
-        title: "What were your main means of transport?",
+        type: "radiogroup",
+        name: "transport",
+        title: "What was your main means of transport?",
         isRequired: true,
         choices: [
          {
-          value: "item1",
+          value: "car",
           text: "Car"
          },
          {
-          value: "item2",
+          value: "bus",
           text: "Bus"
          },
          {
-          value: "item3",
+          value: "train",
           text: "Train / Metro"
          },
          {
-          value: "item4",
+          value: "bike",
           text: "Bike"
          },
          {
-          value: "item5",
+          value: "skateboard",
           text: "Skateboard"
          },
          {
-          value: "item6",
+          value: "walk",
           text: "Walking"
          }
         ]
@@ -107,7 +107,7 @@ export const surveyJSON =
       elements: [
        {
         type: "rating",
-        name: "question4",
+        name: "busy",
         title: "How busy was your day?",
         isRequired: true,
         rateMax: 10,
@@ -121,19 +121,19 @@ export const surveyJSON =
       elements: [
        {
         type: "radiogroup",
-        name: "question6",
+        name: "dinner",
         title: "How did you get your dinner?",
         choices: [
          {
-          value: "item1",
+          value: "cook",
           text: "I cooked it myself"
          },
          {
-          value: "item2",
+          value: "warmup",
           text: "I warmed something up"
          },
          {
-          value: "item3",
+          value: "order",
           text: "I ordered it"
          }
         ]
@@ -145,7 +145,7 @@ export const surveyJSON =
       elements: [
        {
         type: "text",
-        name: "question5",
+        name: "age",
         title: "How old are you?",
         isRequired: true,
         validators: [
@@ -165,7 +165,7 @@ export const surveyJSON =
       elements: [
        {
         type: "rating",
-        name: "question7",
+        name: "sickness",
         title: "Have you been sick today?",
         rateMin: 0,
         rateMax: 4,
@@ -179,7 +179,7 @@ export const surveyJSON =
       elements: [
        {
         type: "rating",
-        name: "question8",
+        name: "drink",
         title: "How much did you drink during the day?",
         rateMin: 0,
         rateMax: 4,

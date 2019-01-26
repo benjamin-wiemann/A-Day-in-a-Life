@@ -14,28 +14,28 @@ export type Note =
     'A1';
 
 
-export const enum Loc {
-    Home = 'Home',
-    HomeMo = 'HomeMo',
-    HomeEv = 'HomeEv',
-    Bathroom = 'Bathroom',
-    Bed = 'Bed',
-    Work = 'Work',
-    Outdoors = 'Outdoors',
-    Supermarket = 'Supermarket',
-    Mall = 'Mall',
-    Diner = 'Diner',
-    Classroom = 'Classroom'
-}
+export type Loc =
+    'home'          |
+    'home_morning'  |
+    'home_evening'  |
+    'bathroom'      |
+    'bed'           |
+    'work'          |
+    'outdoors'      |
+    'supermarket'   |
+    'mall'          |
+    'diner'         |
+    'classroom';
 
-export const enum Transport {
-    Walk = 'Walk',
-    Car = 'Car',
-    Train = 'Train',
-    Bike = 'Bike',
-    Bus = 'Bus',
-    Skateboard = 'Skateboard'
-}
+
+export type Transport =
+    'walk'      |
+    'car'       |
+    'train'     |
+    'bike'      |
+    'bus'       |
+    'skateboard';
+
 
 export const enum Category {
     Slow = 1,
@@ -44,9 +44,9 @@ export const enum Category {
 }
 
 export type Food =
-    'Cooking' |
-    'WarmUp' |
-    'Order';
+    'cook' |
+    'warmup' |
+    'order';
 
 export type SamplesObject = { [note in Note]?: string };
 
@@ -98,17 +98,17 @@ export class TransitionSlot extends TimeSlot {
     public getAtmo(): string {
         const path = './assets/audio/transportation/';
         switch (this.transport) {
-            case Transport.Bike:
-                return path + 'bycycle_atmo+.mp3';
-            case Transport.Bus:
+            case 'bike':
+                return path + 'bicycle_atmo+.mp3';
+            case 'bus':
                 return path + 'bus_atmo.mp3';
-            case Transport.Car:
+            case 'car':
                 return path + 'car_atmo+.mp3';
-            case Transport.Train:
+            case 'train':
                 return path + 'train_and_metro_atmo.mp3';
-            case Transport.Skateboard:
+            case 'skateboard':
                 return path + 'skateboarding_atmo.mp3';
-            case Transport.Walk:
+            case 'walk':
                 return path + (this.isCity ? 'walking_city_atmo.mp3' : 'walking_village_atmo.mp3');
         }
     }
@@ -176,7 +176,6 @@ export class LocationSlot extends TimeSlot {
             slowLine.probability = 1;
             slowLine.start(start).stop(stop);
             console.log( 'Slow starting at ' + start + ' and stopping at ' + stop + ' playing:');
-            console.log(sequence);
         }
 
         // generate mid tempo sample sequence
@@ -194,7 +193,6 @@ export class LocationSlot extends TimeSlot {
             midLine.probability = 1;
             midLine.start(start).stop(stop);
             console.log( 'Mid starting at ' + start + ' and stopping at ' + stop + ' playing:');
-            console.log(sequence);
         }
 
         // generate fast sample sequence
@@ -212,7 +210,6 @@ export class LocationSlot extends TimeSlot {
             fastLine.probability = 1;
             fastLine.start(start).stop(stop);
             console.log( 'Fast starting at ' + start + ' and stopping at ' + stop + ' playing:');
-            console.log(sequence);
         }
     }
 
@@ -235,37 +232,38 @@ export class LocationSlot extends TimeSlot {
     }
 
     private getDir(): string {
-        const path = './assets/audio/location/';
-        switch (this.location) {
-            case Loc.Home:
-                return path + 'home/';
-            case Loc.HomeEv:
-                return path + 'home_evening/';
-            case Loc.HomeMo:
-                return path + 'home_morning/';
-            case Loc.Bathroom:
-                return path + 'bathroom/';
-            case Loc.Bed:
-                return path + 'bed/';
-            case Loc.Diner:
-                return path + 'diner/';
-            case Loc.Mall:
-                return path + 'mall/';
-            case Loc.Outdoors:
-                return path + 'outdoors/';
-            case Loc.Work:
-                return path + 'work/';
-            case Loc.Supermarket:
-                return path + 'supermarket/';
-            case Loc.Classroom:
-                return path + 'classroom/';
-        }
-        throw new Error('this.location is undefined');
+        // const path = './assets/audio/location/';
+        return './assets/audio/location/' + this.location + '/';
+        // switch (this.location) {
+        //     case 'home':
+        //         return path + 'home/';
+        //     case 'homeEv':
+        //         return path + 'home_evening/';
+        //     case 'homeMo':
+        //         return path + 'home_morning/';
+        //     case 'bathroom':
+        //         return path + 'bathroom/';
+        //     case 'bed':
+        //         return path + 'bed/';
+        //     case 'diner':
+        //         return path + 'diner/';
+        //     case 'mall':
+        //         return path + 'mall/';
+        //     case 'outdoors':
+        //         return path + 'outdoors/';
+        //     case 'work':
+        //         return path + 'work/';
+        //     case 'supermarket':
+        //         return path + 'supermarket/';
+        //     case 'classroom':
+        //         return path + 'classroom/';
+        // }
+        // throw new Error('this.location is undefined');
     }
 
     private getNoteToSampleURL(category: Category, food?: Food): SamplesObject {
         switch (this.location) {
-            case Loc.Home:
+            case 'home':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -292,7 +290,7 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.HomeEv:
+            case 'home_evening':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -313,11 +311,11 @@ export class LocationSlot extends TimeSlot {
                     case Category.Fast:
                         if (food != null) {
                             switch (food) {
-                                case 'WarmUp':
+                                case 'warmup':
                                     return {
                                         'C1': 'microwave/microwave.mp3'
                                     };
-                                case 'Order':
+                                case 'order':
                                     return {
                                         'C1': 'order/phone_toot_1.mp3',
                                         'C#1': 'order/phone_toot_2.mp3',
@@ -327,7 +325,7 @@ export class LocationSlot extends TimeSlot {
                                         'F1': 'order/doorbell_1.mp3',
                                         'F#1': 'order/doorbell_2.mp3'
                                     };
-                                case 'Cooking':
+                                case 'cook':
                                     return {
                                         'C1': 'cooking/cutting_1.mp3',
                                         'C#1': 'cooking/cutting_2.mp3',
@@ -345,7 +343,7 @@ export class LocationSlot extends TimeSlot {
                         throw new Error('Tried to create evening slot without giving food parameter.');
                 }
                 break;
-            case Loc.HomeMo:
+            case 'home_morning':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -378,7 +376,7 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.Bathroom:
+            case 'bathroom':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -399,10 +397,10 @@ export class LocationSlot extends TimeSlot {
                         return null;
                 }
                 break;
-            case Loc.Bed:
+            case 'bed':
                 return null;
                 break;
-            case Loc.Diner:
+            case 'diner':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -429,7 +427,7 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.Mall:
+            case 'mall':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -449,10 +447,10 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.Outdoors:
+            case 'outdoors':
                 return null;
                 break;
-            case Loc.Work:
+            case 'work':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -481,7 +479,7 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.Supermarket:
+            case 'supermarket':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -501,7 +499,7 @@ export class LocationSlot extends TimeSlot {
                         };
                 }
                 break;
-            case Loc.Classroom:
+            case 'classroom':
                 switch (category) {
                     case Category.Slow:
                         return {
@@ -536,9 +534,9 @@ export class LocationSlot extends TimeSlot {
 
     public getAtmo(): string {
         const path = this.getDir() + 'atmo';
-        if (this.location === Loc.Home ||
-            this.location === Loc.Work ||
-            this.location === Loc.Outdoors) {
+        if (this.location === 'home' ||
+            this.location === 'work' ||
+            this.location === 'outdoors') {
             return this.isCity ? path + '_city.mp3' : path + '_country.mp3';
         } else {
             return path + '.mp3';

@@ -23,7 +23,7 @@ export class SurveyComponent implements OnInit {
     }
     ngOnInit() {
         this.survey = new Survey.Model(surveyJSON);
-        this.survey.onComplete.add( () => this.messengerService.emitSurveyCompleted( this.survey ) );
+        this.survey.onComplete.add( (() => this.messengerService.emitSurveyCompleted( this.survey )).bind( this ) );
         Survey.SurveyNG.render('surveyElement', { model: this.survey });
     }
 

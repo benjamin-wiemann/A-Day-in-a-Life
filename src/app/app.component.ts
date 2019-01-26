@@ -21,8 +21,8 @@ export class AppComponent {
     ngOnInit() {
         this.messengerService.subscribe(
             (surveyModel: Survey) => {
-                this.surveyCompleted = true;
                 this.survey = surveyModel;
+                this.surveyCompleted = true;
             }
         );
     }
