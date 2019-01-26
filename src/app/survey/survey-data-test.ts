@@ -1,64 +1,9 @@
-export const surveyJSON = 
-{
- "pages": [  
-    {
-        "name": "page6",
-        "elements": [
-            {
-                "type": "radiogroup",
-                "name": "question4",
-                "title": "What is your mood if you think about your day?",
-                "isRequired": true,
-                "choices": [
-                {
-                "value": "item1",
-                "text": "Happy"
-                },
-                {
-                "value": "item2",
-                "text": "Sad"
-                },
-                {
-                "value": "item3",
-                "text": "Angry"
-                }
-                ],
-                "mapping": null
-            }
-        ]
-    },
-    {
-        "name": "page9",
-        "elements": [
-         {
-          "type": "rating",
-          "name": "question8",
-          "title": "How busy was your day?",
-          "isRequired": true,
-          "rateMax": 5,
-          "minRateDescription": "Not busy at all",
-          "maxRateDescription": "Really busy",
-          "mapping": "bpm"
-         }
-        ]
-       },
-    {
-    "name": "page19",
-    "elements": [
-        {
-        "type": "rating",
-        "name": "question12",
-        "title": "Have you been on the move a lot?",
-        "isRequired": true,
-        "rateMax": 5,
-        "minRateDescription": "Not at all",
-        "maxRateDescription": "Always"
-        }
-    ]
-    }
- ],
- "showPageNumbers": true,
- "showProgressBar": "bottom",
- "requiredText": "",
- "firstPageIsStarted": true
+export const surveyAnswers = {
+    'spot': [{ 'Column 1': 'work' }, { 'Column 1': 'mall' }, { 'Column 1': 'outdoors' }],
+    'transport': 'bus',
+    'busy': 10,
+    'dinner': 'order',
+    'age': 30,
+    'sickness': 3,
+    'drink': 4
 };

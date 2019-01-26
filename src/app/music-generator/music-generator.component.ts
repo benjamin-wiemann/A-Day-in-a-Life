@@ -6,6 +6,7 @@ import * as Tone from 'tone';
 import { SurveyMessengerService } from '../survey-messenger.service';
 import * as Slot from './Slot';
 import * as Global from '../global';
+import { surveyAnswers } from '../survey/survey-data-test';
 
 type Question =
     'living_place' |
@@ -54,7 +55,16 @@ export class MusicGeneratorComponent implements OnInit {
     ngOnInit() {
         this.url = 'https://test.url.com';
 
-        Tone.Transport.bpm.value = 80;
+        let data: Object;
+        if (Global.isTestMode) {
+            // fixed slot queue for testing purposes
+            data = surveyAnswers;
+        } else {
+            // set parameters and add slots depending on survey answers
+            data = this.survey.data;
+        }
+
+        Tone.Transport.bpm.value = Math.floor( (data['busy'] / 10) * 40) + 80;
 
         const isCity = true;
 
@@ -64,40 +74,33 @@ export class MusicGeneratorComponent implements OnInit {
         this.addSlot(new Slot.LocationSlot('home_morning', isCity, this.enablePlayButton.bind(this)));
 
         let food: Slot.Food = null;
-        if (Global.isTestMode) {
-            // fixed slot queue for testing purposes
-            this.addSlot(new Slot.TransitionSlot('skateboard', isCity, this.enablePlayButton.bind(this)));
-            this.addSlot(new Slot.LocationSlot('work', isCity, this.enablePlayButton.bind(this)));
-            this.addSlot(new Slot.TransitionSlot('skateboard', isCity, this.enablePlayButton.bind(this)));
-        } else {
-            // set parameters and add slots depending on survey answers
-            const data = this.survey.data;
-            const spots: Object[] = data['spot'];
-            food = data['dinner'];
-            const transport: Slot.Transport = data['transport'];
-            spots.forEach(
-                (spot) => {
-                    // only add a transition slot when leaving home
-                    if (spot['Column 1'] !== 'home') {
-                        this.addSlot(new Slot.TransitionSlot(
-                            transport,
-                            isCity,
-                            this.enablePlayButton.bind(this)));
-                    }
-                    this.addSlot(new Slot.LocationSlot(
-                        spot['Column 1'],
-                        data['living_place'] === 'city',
-                        this.enablePlayButton.bind(this),
-                        food));
+
+        const spots: Object[] = data['spot'];
+        food = data['dinner'];
+        const transport: Slot.Transport = data['transport'];
+        spots.forEach(
+            (spot) => {
+                // only add a transition slot when leaving home
+                if (spot['Column 1'] !== 'home') {
+                    this.addSlot(new Slot.TransitionSlot(
+                        transport,
+                        isCity,
+                        this.enablePlayButton.bind(this)));
                 }
-            );
-            if ( spots[spots.length - 1]['Column 1'] !== 'home' ) {
-                this.addSlot(new Slot.TransitionSlot(
-                    transport,
-                    isCity,
-                    this.enablePlayButton.bind(this)));
+                this.addSlot(new Slot.LocationSlot(
+                    spot['Column 1'],
+                    data['living_place'] === 'city',
+                    this.enablePlayButton.bind(this),
+                    food));
             }
+        );
+        if (spots[spots.length - 1]['Column 1'] !== 'home') {
+            this.addSlot(new Slot.TransitionSlot(
+                transport,
+                isCity,
+                this.enablePlayButton.bind(this)));
         }
+
         this.addSlot(new Slot.LocationSlot('home_evening', isCity, this.enablePlayButton.bind(this), food));
         this.addSlot(new Slot.LocationSlot('bathroom', isCity, this.enablePlayButton.bind(this)));
         this.addSlot(new Slot.LocationSlot('bed', isCity, this.enablePlayButton.bind(this)));
