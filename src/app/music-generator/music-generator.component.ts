@@ -9,13 +9,13 @@ import * as Global from '../global';
 import { surveyAnswers } from '../survey/survey-data-test';
 
 type Question =
-    'living_place' |
-    'spot' |
-    'transport' |
-    'busy' |
-    'dinner' |
-    'age' |
-    'sickness' |
+    'living_place'  |
+    'spot'          |
+    'transport'     |
+    'busy'          |
+    'dinner'        |
+    'age'           |
+    'sickness'      |
     'drink';
 
 @Component({
@@ -105,6 +105,9 @@ export class MusicGeneratorComponent implements OnInit {
         this.addSlot(new Slot.LocationSlot('bathroom', isCity, this.enablePlayButton.bind(this)));
         this.addSlot(new Slot.LocationSlot('bed', isCity, this.enablePlayButton.bind(this)));
 
+        // adding master effects
+        let filter = new Tone.Filter( 22100 - data['age'] * 200, 'lowpass', -24 );
+        Tone.Master.chain(filter);
     }
 
     addSlot(slot: Slot.TimeSlot) {
@@ -125,7 +128,7 @@ export class MusicGeneratorComponent implements OnInit {
         // put slots in queue and start playing
         let bars = 0;
         const transDuration = 3;
-        const locDuration = 4;
+        const locDuration = 6;
         const crossFadeTime = 1;
         this.slots.forEach(
             (slot) => {

@@ -37,11 +37,11 @@ export type Transport =
     'skateboard';
 
 
-export const enum Category {
-    Slow = 1,
-    Mid = 2,
-    Fast = 3
-}
+export type Category = 
+    'slow'  |
+    'mid'   |
+    'fast';
+
 
 export type Food =
     'cook' |
@@ -120,36 +120,50 @@ export class LocationSlot extends TimeSlot {
     samplerSlow: Tone.Sampler = null;
     samplerMid: Tone.Sampler = null;
     samplerFast: Tone.Sampler = null;
+    urlsSlow: SamplesObject;
+    urlsMid: SamplesObject;
+    urlsFast: SamplesObject;
+    panVolSlow: Tone.PanVol;
+    panVolMid: Tone.PanVol;
+    panVolFast: Tone.PanVol;
 
     constructor(private location: Loc, isCity: boolean, onLoad: Tone.Callback, private food: Food = null) {
         super(isCity);
         this.initAtmo(onLoad);
 
-        if (this.getNoteToSampleURL(Category.Slow, food) != null) {
+        // randomly distribute categorys to samplers
+        const categories: Category[] = ['slow', 'mid', 'fast'];
+        let iCat = Math.floor(Math.random() * 3);
+        
+        if (this.getNoteToSampleURL(categories[iCat], food) != null) {
+            this.urlsSlow = this.getNoteToSampleURL(categories[iCat], food);
             this.samplerSlow = new Tone.Sampler(
-                this.getNoteToSampleURL(Category.Slow, food),
+                this.urlsSlow,
                 onLoad,
                 this.getDir());
-            const panVolSlow = new Tone.PanVol(0, 0);
-            this.samplerSlow.chain(panVolSlow, Tone.Master);
+            this.panVolSlow = new Tone.PanVol(-0.7, 0);
+            this.samplerSlow.chain(this.panVolSlow, Tone.Master);
         }
 
-        if (this.getNoteToSampleURL(Category.Mid, food) != null) {
+        iCat = Math.floor(Math.random() * 2);
+        if (this.getNoteToSampleURL(categories[iCat], food) != null) {
+            this.urlsMid = this.getNoteToSampleURL(categories[iCat], food);
             this.samplerMid = new Tone.Sampler(
-                this.getNoteToSampleURL(Category.Mid, food),
+                this.urlsMid,
                 onLoad,
                 this.getDir());
-            const panVolMid = new Tone.PanVol(0, 0);
-            this.samplerMid.chain(panVolMid, Tone.Master);
+            this.panVolMid = new Tone.PanVol(0, 0);
+            this.samplerMid.chain(this.panVolMid, Tone.Master);
         }
 
-        if (this.getNoteToSampleURL(Category.Fast, food) != null) {
+        if (this.getNoteToSampleURL(categories[0], food) != null) {
+            this.urlsFast = this.getNoteToSampleURL(categories[iCat], food);
             this.samplerFast = new Tone.Sampler(
-                this.getNoteToSampleURL(Category.Fast, food),
+                this.urlsFast,
                 onLoad,
                 this.getDir());
-            const panVolFast = new Tone.PanVol(0, 0);
-            this.samplerFast.chain(panVolFast, Tone.Master);
+            this.panVolFast = new Tone.PanVol(0.3, 0);            
+            this.samplerFast.chain(this.panVolFast, Tone.Master);
         }
 
     }
@@ -164,9 +178,9 @@ export class LocationSlot extends TimeSlot {
         // generate slow sample sequence
         if (this.samplerSlow != null) {
             const numNotesSlow = 4;
-            const noteGenProbabilitySlow = 1;
+            const noteGenProbabilitySlow = 0.7;
 
-            const sequence = this.generateSequence(Category.Slow, numNotesSlow, noteGenProbabilitySlow);
+            const sequence = this.generateSequence( this.urlsSlow, numNotesSlow, noteGenProbabilitySlow);
             const slowLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Note) => {
                     this.samplerSlow.triggerAttackRelease(note, '8n', time);
@@ -181,9 +195,9 @@ export class LocationSlot extends TimeSlot {
         // generate mid tempo sample sequence
         if (this.samplerMid != null) {
             const numNotesMid = 8;
-            const noteGenProbabilityMid = 1;
+            const noteGenProbabilityMid = 0.5;
 
-            const sequence = this.generateSequence(Category.Mid, numNotesMid, noteGenProbabilityMid);
+            const sequence = this.generateSequence( this.urlsMid, numNotesMid, noteGenProbabilityMid);
             const midLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Note) => {
                     this.samplerMid.triggerAttackRelease(note, '8n', time);
@@ -198,9 +212,9 @@ export class LocationSlot extends TimeSlot {
         // generate fast sample sequence
         if (this.samplerFast != null) {
             const numNotesFast = 16;
-            const noteGenProbabilityFast = 1;
+            const noteGenProbabilityFast = 0.5;
 
-            const sequence = this.generateSequence(Category.Fast, numNotesFast, noteGenProbabilityFast);
+            const sequence = this.generateSequence( this.urlsFast, numNotesFast, noteGenProbabilityFast);
             const fastLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note) => {
                     this.samplerFast.triggerAttackRelease(note, '8n', time);
@@ -232,47 +246,54 @@ export class LocationSlot extends TimeSlot {
     }
 
     private getDir(): string {
-        // const path = './assets/audio/location/';
         return './assets/audio/location/' + this.location + '/';
-        // switch (this.location) {
-        //     case 'home':
-        //         return path + 'home/';
-        //     case 'homeEv':
-        //         return path + 'home_evening/';
-        //     case 'homeMo':
-        //         return path + 'home_morning/';
-        //     case 'bathroom':
-        //         return path + 'bathroom/';
-        //     case 'bed':
-        //         return path + 'bed/';
-        //     case 'diner':
-        //         return path + 'diner/';
-        //     case 'mall':
-        //         return path + 'mall/';
-        //     case 'outdoors':
-        //         return path + 'outdoors/';
-        //     case 'work':
-        //         return path + 'work/';
-        //     case 'supermarket':
-        //         return path + 'supermarket/';
-        //     case 'classroom':
-        //         return path + 'classroom/';
-        // }
-        // throw new Error('this.location is undefined');
+    }
+
+
+    public getAtmo(): string {
+        const path = this.getDir() + 'atmo';
+        if (this.location === 'home' ||
+            this.location === 'work' ||
+            this.location === 'outdoors') {
+            return this.isCity ? path + '_city.mp3' : path + '_country.mp3';
+        } else {
+            return path + '.mp3';
+        }
+    }
+
+    private generateSequence(noteToURL: SamplesObject, numNotes: number, probability: number): Array<string> {
+        const sequence: string[] = [];
+
+        if (noteToURL == null) {
+            throw new Error('Tried to generate sequence with empty sampler. ');
+        }
+        const notes = Object.keys(noteToURL);
+
+        let iNote: number;
+        for (let i = 0; i < numNotes; i++) {
+            if (Math.random() <= probability) {
+                iNote = Math.floor(Math.random() * notes.length);
+                sequence.push( notes[iNote] );
+            } else {
+                sequence.push(null);
+            }
+        }
+
+        return sequence;
     }
 
     private getNoteToSampleURL(category: Category, food?: Food): SamplesObject {
         switch (this.location) {
             case 'home':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'knocking_1.mp3',
                             'C#1': 'knocking_2.mp3',
                             'D1': 'knocking_3.mp3',
                             'D#1': 'knocking_4.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'close_door_1.mp3',
                             'C#1': 'close_door_2.mp3',
@@ -281,7 +302,7 @@ export class LocationSlot extends TimeSlot {
                             'E1': 'open_door_1.mp3',
                             'F1': 'open_door_2.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'clock_1.mp3',
                             'C#1': 'clock_2.mp3',
@@ -292,7 +313,7 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'home_evening':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'light_switch_1.mp3',
                             'C#1': 'light_switch_2.mp3',
@@ -302,13 +323,13 @@ export class LocationSlot extends TimeSlot {
                             'F1': 'light_switch_6.mp3',
                             'F#1': 'light_switch_7.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'place_plate_1.mp3',
                             'C#1': 'place_plate_2.mp3',
                             'D1': 'place_plate_3.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         if (food != null) {
                             switch (food) {
                                 case 'warmup':
@@ -345,7 +366,7 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'home_morning':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'place_spoon_1.mp3',
                             'C#1': 'place_spoon_2.mp3',
@@ -357,7 +378,7 @@ export class LocationSlot extends TimeSlot {
                             'G1': 'spoon_in_cup_4.mp3',
                             'G#1': 'spoon_in_cup_5.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'light_switch_1.mp3',
                             'C#1': 'light_switch_2.mp3',
@@ -367,7 +388,7 @@ export class LocationSlot extends TimeSlot {
                             'F1': 'light_switch_6.mp3',
                             'F#1': 'light_switch_7.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'place_cup_1.mp3',
                             'C#1': 'place_cup_2.mp3',
@@ -378,7 +399,7 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'bathroom':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'brushing_teeth_1.mp3',
                             'C#1': 'brushing_teeth_2.mp3',
@@ -387,13 +408,13 @@ export class LocationSlot extends TimeSlot {
                             'E1': 'brushing_teeth_5.mp3',
                             'F1': 'brushing_teeth_6.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'toothbrush_in_cup_1.mp3',
                             'C#1': 'toothbrush_in_cup_2.mp3',
                             'D1': 'toothbrush_in_cup_3.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return null;
                 }
                 break;
@@ -402,14 +423,14 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'diner':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'place_spoon_1.mp3',
                             'C#1': 'place_spoon_2.mp3',
                             'D1': 'place_spoon_3.mp3',
                             'D#1': 'place_spoon_4.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'clink_glasses_1.mp3',
                             'C#1': 'clink_glasses_2.mp3',
@@ -419,7 +440,7 @@ export class LocationSlot extends TimeSlot {
                             'F1': 'clink_glasses_6.mp3',
                             'F#1': 'clink_glasses_7.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'place_plate_1.mp3',
                             'C#1': 'place_plate_2.mp3',
@@ -429,19 +450,19 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'mall':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'shopping_beep_1.mp3',
                             'C#1': 'shopping_beep_2.mp3',
                             'D1': 'shopping_beep_3.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'credit_card_1.mp3',
                             'C#1': 'credit_card_2.mp3',
                             'D1': 'credit_card_3.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'cash_register.mp3'
                         };
@@ -452,7 +473,7 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'work':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'keyboard_1.mp3',
                             'C#1': 'keyboard_2.mp3',
@@ -462,14 +483,14 @@ export class LocationSlot extends TimeSlot {
                             'F1': 'keyboard_6.mp3',
                             'F#1': 'keyboard_7.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'mouse_click_1.mp3',
                             'C#1': 'mouse_click_2.mp3',
                             'D1': 'mouse_click_3.mp3',
                             'D#1': 'mouse_click_4.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'turn_page_1.mp3',
                             'C#1': 'turn_page_2.mp3',
@@ -481,19 +502,19 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'supermarket':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'shopping_beep_1.mp3',
                             'C#1': 'shopping_beep_2.mp3',
                             'D1': 'shopping_beep_3.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'credit_card_1.mp3',
                             'C#1': 'credit_card_2.mp3',
                             'D1': 'credit_card_3.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'cash_register.mp3'
                         };
@@ -501,7 +522,7 @@ export class LocationSlot extends TimeSlot {
                 break;
             case 'classroom':
                 switch (category) {
-                    case Category.Slow:
+                    case 'slow':
                         return {
                             'C1': 'keyboard_1.mp3',
                             'C#1': 'keyboard_2.mp3',
@@ -511,14 +532,14 @@ export class LocationSlot extends TimeSlot {
                             'F1': 'keyboard_6.mp3',
                             'F#1': 'keyboard_7.mp3'
                         };
-                    case Category.Mid:
+                    case 'mid':
                         return {
                             'C1': 'pencil_1.mp3',
                             'C#1': 'pencil_2.mp3',
                             'D1': 'pencil_3.mp3',
                             'D#1': 'pencil_4.mp3'
                         };
-                    case Category.Fast:
+                    case 'fast':
                         return {
                             'C1': 'turn_page_1.mp3',
                             'C#1': 'turn_page_2.mp3',
@@ -532,37 +553,5 @@ export class LocationSlot extends TimeSlot {
         }
     }
 
-    public getAtmo(): string {
-        const path = this.getDir() + 'atmo';
-        if (this.location === 'home' ||
-            this.location === 'work' ||
-            this.location === 'outdoors') {
-            return this.isCity ? path + '_city.mp3' : path + '_country.mp3';
-        } else {
-            return path + '.mp3';
-        }
-    }
-
-    private generateSequence(category: Category, numNotes: number, probability: number): Array<string> {
-        const sequence: string[] = [];
-
-        const noteToURL: SamplesObject = this.getNoteToSampleURL(category, this.food);
-        if (noteToURL == null) {
-            throw new Error('Tried to generate sequence with empty sampler. ');
-        }
-        const notes = Object.keys(noteToURL);
-
-        let iNote: number;
-        for (let i = 0; i < numNotes; i++) {
-            if (Math.random() <= probability) {
-                iNote = Math.floor(Math.random() * notes.length);
-                sequence.push( notes[iNote] );
-            } else {
-                sequence.push(null);
-            }
-        }
-
-        return sequence;
-    }
 
 }

@@ -3,7 +3,7 @@ export const surveyAnswers = {
     'transport': 'bus',
     'busy': 10,
     'dinner': 'order',
-    'age': 30,
+    'age': 80,
     'sickness': 3,
     'drink': 4
 };
