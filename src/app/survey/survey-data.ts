@@ -110,6 +110,7 @@ export const surveyJSON =
                     name: 'busy',
                     title: 'How busy was your day?',
                     isRequired: true,
+                    rateMin: 1,
                     rateMax: 10,
                     minRateDescription: 'Not busy at all',
                     maxRateDescription: 'Really busy'
@@ -167,8 +168,8 @@ export const surveyJSON =
                     type: 'rating',
                     name: 'sickness',
                     title: 'Have you been sick today?',
-                    rateMin: 0,
-                    rateMax: 4,
+                    rateMin: 1,
+                    rateMax: 10,
                     minRateDescription: 'Not at all',
                     maxRateDescription: 'Very sick'
                 }
@@ -181,8 +182,8 @@ export const surveyJSON =
                     type: 'rating',
                     name: 'drink',
                     title: 'How much did you drink during the day?',
-                    rateMin: 0,
-                    rateMax: 4,
+                    rateMin: 1,
+                    rateMax: 10,
                     minRateDescription: 'Very less',
                     maxRateDescription: 'Very much'
                 }

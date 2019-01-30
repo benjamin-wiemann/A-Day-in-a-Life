@@ -7,6 +7,8 @@ import { SurveyMessengerService } from '../survey-messenger.service';
 import * as Slot from './Slot';
 import * as Global from '../global';
 import { surveyAnswers } from '../survey/survey-data-test';
+import * as Samples from './sample-mappings';
+import * as Tools from './tools';
 
 type Question =
     'living_place'  |
@@ -32,15 +34,21 @@ export class MusicGeneratorComponent implements OnInit {
     @Input() pause_enabled = false;
 
     // instruments
-    atmo: Tone.Player;
-    sample1: Tone.Sampler;
-    sample2: Tone.Sampler;
-    sample3: Tone.Sampler;
+    drinking: Tone.Sampler;
+    flushing: Tone.Sampler;
+    coughingSneezing: Tone.Sampler;
+
+    panVolDrink: Tone.PanVol;
+    panVolFlush: Tone.PanVol;
+    panVolSickness: Tone.PanVol;
 
     // Slot sequence
     slots = Array<Slot.TimeSlot>();
     numBuffers = 0;
     numBuffersLoaded = 0;
+    seqDrink: Tone.Sequence;
+    seqFlush: Tone.Sequence;
+    seqSick: Tone.Sequence;
 
     constructor() { }
 
@@ -73,7 +81,7 @@ export class MusicGeneratorComponent implements OnInit {
         this.addSlot(new Slot.LocationSlot('bathroom', isCity, this.enablePlayButton.bind(this)));
         this.addSlot(new Slot.LocationSlot('home_morning', isCity, this.enablePlayButton.bind(this)));
 
-        let food: Slot.Food = null;
+        let food: Samples.Food = null;
 
         const spots: Object[] = data['spot'];
         food = data['dinner'];
@@ -105,6 +113,26 @@ export class MusicGeneratorComponent implements OnInit {
         this.addSlot(new Slot.LocationSlot('bathroom', isCity, this.enablePlayButton.bind(this)));
         this.addSlot(new Slot.LocationSlot('bed', isCity, this.enablePlayButton.bind(this)));
 
+        // initialize continous sound sources
+        this.coughingSneezing = new Tone.Sampler(Samples.getSicknessSamples().fileNames, 
+            this.enablePlayButton.bind( this ),
+            Samples.getSicknessSamples().path);
+        this.panVolSickness = new Tone.PanVol(0, 0);
+        this.coughingSneezing.chain( this.panVolSickness, Tone.Master);
+
+        this.drinking = new Tone.Sampler(Samples.getDrinkingSamples().fileNames, 
+            this.enablePlayButton.bind( this ),
+            Samples.getDrinkingSamples().path);
+        this.panVolDrink = new Tone.PanVol(0, 0);
+        this.drinking.chain( this.panVolDrink, Tone.Master);
+        
+        this.flushing = new Tone.Sampler(Samples.getFlushingSamples().fileNames, 
+            this.enablePlayButton.bind( this ),
+            Samples.getFlushingSamples().path);
+        this.panVolFlush = new Tone.PanVol(0, 0);
+        this.flushing.chain( this.panVolDrink, Tone.Master);
+        this.numBuffers += 3;
+            
         // adding master effects
         let filter = new Tone.Filter( 22100 - data['age'] * 200, 'lowpass', -24 );
         Tone.Master.chain(filter);
@@ -121,11 +149,18 @@ export class MusicGeneratorComponent implements OnInit {
 
     onPlay(): void {
 
+        let data: Object;
+        if (Global.isTestMode) {
+            data = surveyAnswers;
+        } else {
+            data = this.survey.data;
+        }
+
         this.play_enabled = false;
         this.pause_enabled = true;
         this.stop_enabled = true;
 
-        // put slots in queue and start playing
+        // put slots in queue
         let bars = 0;
         const transDuration = 3;
         const locDuration = 6;
@@ -142,9 +177,42 @@ export class MusicGeneratorComponent implements OnInit {
             }
         );
 
+        let stopTime = bars + crossFadeTime;
+        let stopString = `${ stopTime + locDuration*2 }m`;
+
+        // add continous samples
+        this.seqDrink = new Tone.Sequence((
+            (time: Tone.Encoding.Time, note: Samples.Note) => {
+                this.drinking.triggerAttackRelease(note, '1m', time);
+            }).bind(this),
+            Tools.generateSequence( Samples.getDrinkingSamples().fileNames, 4, 1 ),
+            '4n');
+        this.seqDrink.probability = data['drink']/20;
+        this.seqDrink.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
+
+        this.seqFlush = new Tone.Sequence((
+            (time: Tone.Encoding.Time, note: Samples.Note) => {
+                this.flushing.triggerAttackRelease(note, '2m', time);
+            }).bind(this),
+            Tools.generateSequence( Samples.getFlushingSamples().fileNames, 4, 1 ),
+            '4n');
+        this.seqFlush.probability = data['drink']/80;
+        this.seqFlush.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
+        
+        this.seqSick = new Tone.Sequence((
+            (time: Tone.Encoding.Time, note: Samples.Note) => {
+                this.coughingSneezing.triggerAttackRelease(note, '1m', time);
+            }).bind(this),
+            Tools.generateSequence( Samples.getSicknessSamples().fileNames, 4, 1 ),
+            '4n');
+        this.seqSick.probability = data['sickness']/20;
+        this.seqSick.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );        
+
         let stopEvent = new Tone.Event((() => this.stop('+0.1')).bind(this), null);
-        stopEvent.start(`${bars + crossFadeTime}m`);
-        Tone.Transport.start('+0.1');
+        stopEvent.start( stopString );
+
+        Tone.Transport.start('+0.1').stop( stopString );
+        console.log('Stopping at ' + stopString);
 
     }
 
@@ -153,6 +221,7 @@ export class MusicGeneratorComponent implements OnInit {
         this.slots.forEach(
             (slot) => { slot.stop(time); }
         );
+        Tone.Transport.position = '0:0:0';
         this.play_enabled = true;
         this.stop_enabled = false;
         this.pause_enabled = false;

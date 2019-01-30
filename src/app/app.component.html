@@ -2,8 +2,11 @@
 
 <div class='container'>
     <div *ngIf="!surveyCompleted; else resultBlock">
-        <div id='explanation' class='text-left'>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
+        <div id='explanation' class='text-left'>Have you ever wondered, how an intonation of a random day in your life would sound? "A day in a live" will show you one way to do it. Answer the questions to receive your own personal composition!</div>
         <day-survey-comp></day-survey-comp>
     </div>    
     <ng-template #resultBlock><day-music-generator [survey]="this.survey"></day-music-generator></ng-template>
+
+
+    <div class='small text-right'>Created by Sebastian Weber and Benjamin Wiemann</div>
 </div>

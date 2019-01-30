@@ -1,7 +1,7 @@
 export const surveyAnswers = {
-    'spot': [{ 'Column 1': 'work' }, { 'Column 1': 'mall' }, { 'Column 1': 'outdoors' }],
+    'spot': [{ 'Column 1': 'home' }, { 'Column 1': 'outdoors' }, { 'Column 1': 'supermarket' }],
     'transport': 'bus',
-    'busy': 10,
+    'busy': 5,
     'dinner': 'order',
     'age': 80,
     'sickness': 3,
