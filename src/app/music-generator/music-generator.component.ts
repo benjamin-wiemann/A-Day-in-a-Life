@@ -6,7 +6,7 @@ import * as Tone from 'tone';
 import { SurveyMessengerService } from '../survey-messenger.service';
 import * as Slot from './Slot';
 import * as Global from '../global';
-import { surveyAnswers } from '../survey/survey-data-test';
+import { TestSurvey } from '../survey/survey-data-test';
 import * as Samples from './sample-mappings';
 import * as Tools from './tools';
 
@@ -33,6 +33,8 @@ export class MusicGeneratorComponent implements OnInit {
     @Input() stop_enabled = false;
     @Input() pause_enabled = false;
 
+    private data: Object;
+
     // instruments
     drinking: Tone.Sampler;
     flushing: Tone.Sampler;
@@ -42,6 +44,8 @@ export class MusicGeneratorComponent implements OnInit {
     panVolFlush: Tone.PanVol;
     panVolSickness: Tone.PanVol;
 
+    reverbReady = false;
+
     // Slot sequence
     slots = Array<Slot.TimeSlot>();
     numBuffers = 0;
@@ -49,13 +53,19 @@ export class MusicGeneratorComponent implements OnInit {
     seqDrink: Tone.Sequence;
     seqFlush: Tone.Sequence;
     seqSick: Tone.Sequence;
+    stopString: string;
+    isInitialized = false;
 
     constructor() { }
 
     enablePlayButton() {
         this.numBuffersLoaded++;
         console.log(` ${this.numBuffersLoaded} of ${this.numBuffers} loaded `);
-        if (this.numBuffers === this.numBuffersLoaded) {
+        this.enablePlay();
+    }
+
+    enablePlay() {
+        if (this.numBuffers === this.numBuffersLoaded ) {
             this.play_enabled = true;
         }
     }
@@ -66,13 +76,13 @@ export class MusicGeneratorComponent implements OnInit {
         let data: Object;
         if (Global.isTestMode) {
             // fixed slot queue for testing purposes
-            data = surveyAnswers;
+            this.data = TestSurvey.work;
         } else {
             // set parameters and add slots depending on survey answers
-            data = this.survey.data;
+            this.data = this.survey.data;
         }
 
-        Tone.Transport.bpm.value = Math.floor( (data['busy'] / 10) * 40) + 80;
+        Tone.Transport.bpm.value = Math.floor( (this.data['busy'] / 10) * 40) + 80;
 
         const isCity = true;
 
@@ -83,21 +93,31 @@ export class MusicGeneratorComponent implements OnInit {
 
         let food: Samples.Food = null;
 
-        const spots: Object[] = data['spot'];
-        food = data['dinner'];
-        const transport: Slot.Transport = data['transport'];
+        const spots: Object[] = this.data['spot'];
+        food = this.data['dinner'];
+        const transport: Slot.Transport = this.data['transport'];
+        let isOnTheMove = false;
         spots.forEach(
             (spot) => {
-                // only add a transition slot when leaving home
+                // only add a transition slot when leaving home, moving from spot to spot or when coming back home
                 if (spot['Column 1'] !== 'home') {
                     this.addSlot(new Slot.TransitionSlot(
                         transport,
                         isCity,
                         this.enablePlayButton.bind(this)));
+                    isOnTheMove = true;
+                } else{
+                    if( isOnTheMove ) {
+                        this.addSlot(new Slot.TransitionSlot(
+                            transport,
+                            isCity,
+                            this.enablePlayButton.bind(this)));
+                        isOnTheMove = false;
+                    }
                 }
                 this.addSlot(new Slot.LocationSlot(
                     spot['Column 1'],
-                    data['living_place'] === 'city',
+                    this.data['living_place'] === 'city',
                     this.enablePlayButton.bind(this),
                     food));
             }
@@ -134,8 +154,21 @@ export class MusicGeneratorComponent implements OnInit {
         this.numBuffers += 3;
             
         // adding master effects
-        let filter = new Tone.Filter( 22100 - data['age'] * 200, 'lowpass', -24 );
-        Tone.Master.chain(filter);
+        let filter = new Tone.Filter( 22100 - this.data['age'] * 200, 'lowpass', -24 );
+        let comp = new Tone.Compressor(-30, 5);
+        comp.attack.value = 0;
+        // comp.release.value = 0;
+        let limiter = new Tone.Limiter(-7);
+        // let reverb = new Tone.Reverb();
+        // reverb.wet.value = 1;
+		// reverb.generate().then(
+        //     (() => {
+        //         this.reverbReady = true;
+        //         this.enablePlay();
+		// }).bind(this));
+
+        Tone.Master.chain( filter, comp, limiter);
+        Tone.Master.volume.value = -6;
     }
 
     addSlot(slot: Slot.TimeSlot) {
@@ -149,79 +182,74 @@ export class MusicGeneratorComponent implements OnInit {
 
     onPlay(): void {
 
-        let data: Object;
-        if (Global.isTestMode) {
-            data = surveyAnswers;
-        } else {
-            data = this.survey.data;
-        }
-
+        Tone.Transport.position = '0:0:0';
         this.play_enabled = false;
         this.pause_enabled = true;
         this.stop_enabled = true;
 
-        // put slots in queue
-        let bars = 0;
-        const transDuration = 3;
-        const locDuration = 6;
-        const crossFadeTime = 1;
-        this.slots.forEach(
-            (slot) => {
-                if (slot instanceof Slot.LocationSlot) {
-                    slot.play(bars, locDuration, crossFadeTime);
-                    bars += locDuration - crossFadeTime;
-                } else {
-                    slot.play(bars, transDuration, crossFadeTime);
-                    bars += transDuration - crossFadeTime;
+        if( !this.isInitialized ) {
+            // put slots in queue
+            let bars = 0;
+            const transDuration = 3;
+            const locDuration = 6;
+            const crossFadeTime = 1;
+            this.slots.forEach(
+                (slot) => {
+                    if (slot instanceof Slot.LocationSlot) {
+                        slot.play(bars, locDuration, crossFadeTime);
+                        bars += locDuration - crossFadeTime;
+                    } else {
+                        slot.play(bars, transDuration, crossFadeTime);
+                        bars += transDuration - crossFadeTime;
+                    }
                 }
-            }
-        );
+            );
 
-        let stopTime = bars + crossFadeTime;
-        let stopString = `${ stopTime + locDuration*2 }m`;
+            let stopTime = bars + crossFadeTime ;
+            this.stopString = `+${ stopTime }m`;
 
-        // add continous samples
-        this.seqDrink = new Tone.Sequence((
-            (time: Tone.Encoding.Time, note: Samples.Note) => {
-                this.drinking.triggerAttackRelease(note, '1m', time);
-            }).bind(this),
-            Tools.generateSequence( Samples.getDrinkingSamples().fileNames, 4, 1 ),
-            '4n');
-        this.seqDrink.probability = data['drink']/20;
-        this.seqDrink.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
+            // add continous samples
+            this.seqDrink = new Tone.Sequence((
+                (time: Tone.Encoding.Time, note: Samples.Note) => {
+                    this.drinking.triggerAttackRelease(note, '1m', time);
+                }).bind(this),
+                Tools.generateSequence( Samples.getDrinkingSamples().fileNames, 4, 1 ),
+                '4n');
+            this.seqDrink.probability = (this.data['drink'] - 1)/80;
+            this.seqDrink.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
 
-        this.seqFlush = new Tone.Sequence((
-            (time: Tone.Encoding.Time, note: Samples.Note) => {
-                this.flushing.triggerAttackRelease(note, '2m', time);
-            }).bind(this),
-            Tools.generateSequence( Samples.getFlushingSamples().fileNames, 4, 1 ),
-            '4n');
-        this.seqFlush.probability = data['drink']/80;
-        this.seqFlush.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
-        
-        this.seqSick = new Tone.Sequence((
-            (time: Tone.Encoding.Time, note: Samples.Note) => {
-                this.coughingSneezing.triggerAttackRelease(note, '1m', time);
-            }).bind(this),
-            Tools.generateSequence( Samples.getSicknessSamples().fileNames, 4, 1 ),
-            '4n');
-        this.seqSick.probability = data['sickness']/20;
-        this.seqSick.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );        
-
-        let stopEvent = new Tone.Event((() => this.stop('+0.1')).bind(this), null);
-        stopEvent.start( stopString );
-
-        Tone.Transport.start('+0.1').stop( stopString );
-        console.log('Stopping at ' + stopString);
+            this.seqFlush = new Tone.Sequence((
+                (time: Tone.Encoding.Time, note: Samples.Note) => {
+                    this.flushing.triggerAttackRelease(note, '2m', time);
+                }).bind(this),
+                Tools.generateSequence( Samples.getFlushingSamples().fileNames, 4, 1 ),
+                '4n');
+            this.seqFlush.probability = (this.data['drink'] - 1)/80;
+            this.seqFlush.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
+            
+            this.seqSick = new Tone.Sequence((
+                (time: Tone.Encoding.Time, note: Samples.Note) => {
+                    this.coughingSneezing.triggerAttackRelease(note, '1m', time);
+                }).bind(this),
+                Tools.generateSequence( Samples.getSicknessSamples().fileNames, 4, 1 ),
+                '4n');
+            this.seqSick.probability = (this.data['sickness'] - 1)/40;
+            this.seqSick.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );    
+            
+            this.isInitialized = true;
+        }
+        Tone.Transport.schedule((( time ) => this.stop( time )).bind(this), this.stopString);
+        Tone.Transport.start('+0.1');
+        console.log('Stopping at ' + this.stopString);
 
     }
 
     stop(time: Tone.Encoding.Time) {
+        //Tone.Transport.cancel('0:0:0');
         Tone.Transport.stop(time);
         this.slots.forEach(
-            (slot) => { slot.stop(time); }
+            (slot) => {}// slot.stop(time); }
         );
-        Tone.Transport.position = '0:0:0';
         this.play_enabled = true;
         this.stop_enabled = false;
         this.pause_enabled = false;

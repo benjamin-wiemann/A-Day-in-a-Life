@@ -40,7 +40,7 @@ export abstract class TimeSlot {
 
     stop( time: Tone.Encoding.Time ) {
         this.atmo.stop('+0.1');
-        this.atmo.position
+        // this.atmo.seek( '0:0:0' );
     }
 
     public getNumInstrumentsToLoad(): number {
@@ -135,14 +135,15 @@ export class LocationSlot extends TimeSlot {
         super.play(startBar, duration, crossFadeTime);
 
         // time value initialization
-        const start = `${startBar + crossFadeTime }m`;
-        const stop = `${startBar + duration - crossFadeTime }m`;
+        const start = `${startBar}m`;
+        const stop = `${startBar + duration }m`;
 
         // generate slow sample sequence
         if (this.samplerSlow != null) {
             const numNotesSlow = 4;
             const noteGenProbabilitySlow = 0.7;
 
+            this.fadeInFadeOut( this.samplerSlow, crossFadeTime, startBar, duration);
             const sequence = Tools.generateSequence( this.urlsSlow, numNotesSlow, noteGenProbabilitySlow);
             const slowLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Samples.Note) => {
@@ -150,7 +151,7 @@ export class LocationSlot extends TimeSlot {
                 }).bind(this),
                 sequence,
                 `${numNotesSlow}n`);
-            slowLine.probability = 1;
+            slowLine.probability = 1;                  
             slowLine.start(start).stop(stop);
             console.log( 'Slow starting at ' + start + ' and stopping at ' + stop + ' playing:');
         }
@@ -160,6 +161,7 @@ export class LocationSlot extends TimeSlot {
             const numNotesMid = 8;
             const noteGenProbabilityMid = 0.5;
 
+            this.fadeInFadeOut( this.samplerMid, crossFadeTime, startBar, duration);
             const sequence = Tools.generateSequence( this.urlsMid, numNotesMid, noteGenProbabilityMid);
             const midLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Samples.Note) => {
@@ -177,6 +179,7 @@ export class LocationSlot extends TimeSlot {
             const numNotesFast = 16;
             const noteGenProbabilityFast = 0.5;
 
+            this.fadeInFadeOut( this.samplerFast, crossFadeTime, startBar, duration);
             const sequence = Tools.generateSequence( this.urlsFast, numNotesFast, noteGenProbabilityFast);
             const fastLine = new Tone.Sequence((
                 (time: Tone.Encoding.Time, note: Samples.Note) => {
@@ -222,6 +225,18 @@ export class LocationSlot extends TimeSlot {
         } else {
             return path + '.mp3';
         }
+    }
+
+    private fadeInFadeOut( sampler: Tone.Sampler, fadeTime: number, startTime: number, slotTime: number ){
+        sampler.volume.value = -60;
+        Tone.Transport.schedule( 
+            ( time ) => { sampler.volume.linearRampTo( 0, `${fadeTime}m`, time ) },
+            `${startTime}m`
+        );
+        Tone.Transport.schedule(
+            ( time ) => { sampler.volume.linearRampTo( -60, `${fadeTime}m`, time ) },
+            `${startTime + slotTime - fadeTime}m`
+        )
     }
 
 }
