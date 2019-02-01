@@ -154,8 +154,8 @@ export class MusicGeneratorComponent implements OnInit {
         this.numBuffers += 3;
             
         // adding master effects
-        let filter = new Tone.Filter( 22100 - this.data['age'] * 200, 'lowpass', -24 );
-        let comp = new Tone.Compressor(-30, 5);
+        let filter = new Tone.Filter( 22100 - this.data['age'] * 100, 'lowpass', -24 );
+        let comp = new Tone.Compressor(-20, 2);
         comp.attack.value = 0;
         // comp.release.value = 0;
         let limiter = new Tone.Limiter(-7);
@@ -168,7 +168,7 @@ export class MusicGeneratorComponent implements OnInit {
 		// }).bind(this));
 
         Tone.Master.chain( filter, comp, limiter);
-        Tone.Master.volume.value = -6;
+        Tone.Master.volume.value = -12;
     }
 
     addSlot(slot: Slot.TimeSlot) {
@@ -215,7 +215,7 @@ export class MusicGeneratorComponent implements OnInit {
                 }).bind(this),
                 Tools.generateSequence( Samples.getDrinkingSamples().fileNames, 4, 1 ),
                 '4n');
-            this.seqDrink.probability = (this.data['drink'] - 1)/80;
+            this.seqDrink.probability = (this.data['drink'])/80;
             this.seqDrink.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
 
             this.seqFlush = new Tone.Sequence((
@@ -224,7 +224,7 @@ export class MusicGeneratorComponent implements OnInit {
                 }).bind(this),
                 Tools.generateSequence( Samples.getFlushingSamples().fileNames, 4, 1 ),
                 '4n');
-            this.seqFlush.probability = (this.data['drink'] - 1)/80;
+            this.seqFlush.probability = (this.data['drink'])/160;
             this.seqFlush.start( `${locDuration + crossFadeTime}m` ).stop( `${stopTime - locDuration - crossFadeTime}m` );
             
             this.seqSick = new Tone.Sequence((

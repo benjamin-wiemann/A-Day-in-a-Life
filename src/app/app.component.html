@@ -2,11 +2,13 @@
 
 <div class='container'>
     <div *ngIf="!surveyCompleted; else resultBlock">
-        <div id='explanation' class='text-left'>Have you ever wondered, how an intonation of a random day in your life would sound? "A day in a live" will show you one way to do it. Answer the questions to receive your own personal composition!</div>
+        <div id='explanation' class='text-left'>Have you ever wondered how it would sound, if a random day in your life would be transformed into a piece of music?
+             "A day in a live" will show you one way to do it. Answer the questions to receive your own personal composition!</div>
         <day-survey-comp></day-survey-comp>
     </div>    
     <ng-template #resultBlock><day-music-generator [survey]="this.survey"></day-music-generator></ng-template>
 
 
     <div id='signature' class='small text-right'>Created by Sebastian Weber and Benjamin Wiemann</div>
+    <div class='small text-right'>Source code available at <a href="https://gitlab.com/bwiemann/a-day-in-a-life">https://gitlab.com/bwiemann/a-day-in-a-life</a></div>
 </div>

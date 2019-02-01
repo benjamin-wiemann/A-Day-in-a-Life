@@ -228,13 +228,13 @@ export class LocationSlot extends TimeSlot {
     }
 
     private fadeInFadeOut( sampler: Tone.Sampler, fadeTime: number, startTime: number, slotTime: number ){
-        sampler.volume.value = -60;
+        sampler.volume.value = -80;
         Tone.Transport.schedule( 
             ( time ) => { sampler.volume.linearRampTo( 0, `${fadeTime}m`, time ) },
             `${startTime}m`
         );
         Tone.Transport.schedule(
-            ( time ) => { sampler.volume.linearRampTo( -60, `${fadeTime}m`, time ) },
+            ( time ) => { sampler.volume.linearRampTo( -80, `${fadeTime}m`, time ) },
             `${startTime + slotTime - fadeTime}m`
         )
     }

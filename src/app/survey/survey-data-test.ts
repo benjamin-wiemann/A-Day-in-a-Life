@@ -21,7 +21,7 @@ export namespace TestSurvey {
     };
 
     export const work = {
-        'spot': [{ 'Column 1': 'work' }, { 'Column 1': 'home' }],
+        'spot': [{ 'Column 1': 'work' }, { 'Column 1': 'supermarket' }],
         'transport': 'bus',
         'busy': 5,
         'dinner': 'order',
